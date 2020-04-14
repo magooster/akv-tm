@@ -1,0 +1,127 @@
+plugins {
+    id 'java'
+    id 'idea'
+    id "com.diffplug.gradle.spotless" version "3.25.0"
+    id 'maven-publish'
+}
+
+group 'net.iaminnovative'
+version '0.1-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    jcenter()
+    maven { url 'https://oss.sonatype.org/content/repositories/releases/' }
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+}
+
+javadoc {
+    options.encoding = 'UTF-8'
+}
+
+task javadocsJar(type: Jar) {
+    archiveClassifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    archiveClassifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task testsJar(type: Jar) {
+    archiveClassifier = 'tests'
+    from sourceSets.test.output
+}
+
+artifacts { archives sourcesJar, javadocsJar, testsJar }
+
+spotless {
+    java {
+        // This path needs to be relative to each project
+        target fileTree('.') {
+            include '**/src/*/java/**/*.java'
+            exclude '**/.gradle/**'
+            exclude '**/generated/**'
+        }
+        removeUnusedImports()
+        googleJavaFormat("1.7").aosp()
+        importOrder 'java', '', 'net.iaminnovative', '\\#'
+        trimTrailingWhitespace()
+        endWithNewline()
+        licenseHeaderFile "$rootDir/gradle/spotless/java.license"
+    }
+    groovyGradle {
+        target '*.gradle'
+        greclipse().configFile("$rootDir/gradle/spotless/formatter.properties")
+        endWithNewline()
+        indentWithSpaces(4)
+        paddedCell()
+    }
+}
+
+ext {
+    identityVersion = '1.0.4'
+    akvVersion = '4.1.1'
+    web3jVersion = '4.5.17'
+    junitVersion = '5.5.2'
+}
+
+dependencies {
+    implementation "org.web3j:core:$web3jVersion"
+    implementation "com.azure:azure-security-keyvault-keys:$akvVersion"
+    implementation "com.azure:azure-identity:$identityVersion"
+    implementation "com.google.guava:guava:28.2-jre"
+    testImplementation "org.junit.jupiter:junit-jupiter-engine:$junitVersion",
+            "org.junit.jupiter:junit-jupiter-api:$junitVersion",
+            "org.junit.jupiter:junit-jupiter-params:$junitVersion"
+}
+
+test {
+    useJUnitPlatform()
+
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            from components.java
+
+            artifact sourcesJar
+            artifact javadocsJar
+            artifact testsJar
+
+            pom {
+                name = 'Azure KeyVault TransactionManager'
+                description.set(project.provider({ project.description }))
+                url = "https://github.com/magooster/${ project.name }"
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                scm {
+                    connection = "scm:https://github.com/magooster/${ project.name }.git"
+                    developerConnection = "scm:git://github.com/magooster/${ project.name }.git"
+                    url = "https://github.com/magooster/${ project.name }"
+                }
+
+                developers {
+                    developer {
+                        id = 'magooster'
+                        name = 'Ian Cusden'
+                        email = 'magooster@iaminnovative.net'
+                    }
+                }
+            }
+        }
+    }
+}
