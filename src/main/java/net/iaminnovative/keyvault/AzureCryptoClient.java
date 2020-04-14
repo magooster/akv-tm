@@ -31,13 +31,13 @@ import org.web3j.crypto.Keys;
 import net.iaminnovative.KeyVaultException;
 
 /**
- * The AzureCryptoClient provides synchronous methods to perform cryptographic operations using EC asymmetric keys.
- * The identity used requires the get and sign permissions on the respective key vault.
+ * The AzureCryptoClient provides synchronous methods to perform cryptographic operations using EC
+ * asymmetric keys. The identity used requires the get and sign permissions on the respective key
+ * vault.
  */
 public class AzureCryptoClient implements KeyVaultClient {
 
-    public static final String UNAUTHORIZED_ERROR =
-            "Key vault operation is forbidden by policy";
+    public static final String UNAUTHORIZED_ERROR = "Key vault operation is forbidden by policy";
 
     public static final String BAD_PARAMETER_ERROR =
             "Key vault does not contain key with specified version";
@@ -53,6 +53,7 @@ public class AzureCryptoClient implements KeyVaultClient {
 
     /**
      * Instantiates a new key vault using the Azure cryptography client
+     *
      * @param keyId The key identifier within Azure Key Vault
      * @param credential The token credential to use when authorizing requests
      * @throws KeyVaultException When the key vault operation throws an error
@@ -93,18 +94,37 @@ public class AzureCryptoClient implements KeyVaultClient {
     }
 
     /**
+     * Instantiates a new key vault using the Azure cryptography client Uses the
+     * DefaultAzureCredential
      *
-     * @param keyId The key identifier within Azure Key Vault
+     * @param keyId The key identifier
      * @throws KeyVaultException When the key vault operation throws an error
      */
     public AzureCryptoClient(String keyId) throws KeyVaultException {
         this(keyId, new DefaultAzureCredentialBuilder().build());
     }
 
+    /**
+     * Instantiates a new key vault using the Azure cryptography client Uses a
+     * ManagedIdentityCredential
+     *
+     * @param keyId The key identifier
+     * @param clientId The clientId of the managed identity
+     * @throws KeyVaultException
+     */
     public AzureCryptoClient(String keyId, String clientId) throws KeyVaultException {
         this(keyId, new ManagedIdentityCredentialBuilder().clientId(clientId).build());
     }
 
+    /**
+     * Instantiates a new key vault using the Azure cryptography client Uses the
+     * DefaultAzureCredential
+     *
+     * @param keyVaultName - The key vault name
+     * @param keyName - The key name
+     * @param keyVersion - The key version
+     * @throws KeyVaultException
+     */
     public AzureCryptoClient(String keyVaultName, String keyName, String keyVersion)
             throws KeyVaultException {
         this(String.format(KEY_IDENTIFIER_PATTERN, keyVaultName, keyName, keyVersion));
@@ -120,6 +140,7 @@ public class AzureCryptoClient implements KeyVaultClient {
 
     /**
      * Gets the public part of the configured key.
+     *
      * @return The public key.
      */
     public byte[] getPublicKey() {
@@ -128,6 +149,7 @@ public class AzureCryptoClient implements KeyVaultClient {
 
     /**
      * Gets tha Ethereum address of the configured key.
+     *
      * @return The Ethereum address as a HEX encoded string.
      */
     public String getAddress() {
@@ -137,16 +159,16 @@ public class AzureCryptoClient implements KeyVaultClient {
 
     /**
      * Creates a signature from a digest using the configured key.
-     * @param msgHash The transaction digest (RLP encoded transaction) to be signed.
+     *
+     * @param txDigest The transaction digest (RLP encoded transaction) to be signed.
      * @return The signature.
      * @throws KeyVaultException - when a key vault error occurs.
      */
-    public byte[] sign(byte[] msgHash) throws KeyVaultException {
+    public byte[] sign(byte[] txDigest) throws KeyVaultException {
         try {
-            SignResult result = cryptoClient.sign(SignatureAlgorithm.ES256K, msgHash);
+            SignResult result = cryptoClient.sign(SignatureAlgorithm.ES256K, txDigest);
             return result.getSignature();
-        }
-        catch(HttpResponseException ex) {
+        } catch (HttpResponseException ex) {
             if (ex.getResponse().getStatusCode() == 404) {
                 throw new KeyVaultException(INVALID_KEY_ERROR, ex);
             }

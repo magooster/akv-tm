@@ -12,19 +12,16 @@
  */
 package net.iaminnovative;
 
-/**
- * Thrown to indicate that a key vault operation has failed
- */
+/** Thrown to indicate that a key vault operation has failed */
 public class KeyVaultException extends RuntimeException {
-    /**
-     * Constructs a KeyVaultException with no error message
-     */
+    /** Constructs a KeyVaultException with no error message */
     public KeyVaultException() {
         super();
     }
 
     /**
      * Constructs a KeyVaultException with the specified error message.
+     *
      * @param message the error message (Retrievable by the Throwable.getMessage() method)
      */
     public KeyVaultException(final String message) {
@@ -33,6 +30,7 @@ public class KeyVaultException extends RuntimeException {
 
     /**
      * Constructs a KeyVaultException with the specified error message and cause.
+     *
      * @param message the error message (Retrievable by the Throwable.getMessage() method)
      * @param cause the cause (Retrievable by the Throwable.getCause() method)
      */

@@ -12,9 +12,7 @@
  */
 package net.iaminnovative.keyvault;
 
-/**
- * The interface for the KeyClient class
- */
+/** The interface for the KeyVaultClient class */
 public interface KeyVaultClient {
 
     /**
