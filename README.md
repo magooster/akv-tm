@@ -12,21 +12,25 @@ TBD
 
 TBD
 
-## Usage
+## Prerequisites
 
-Web3j web3j = Web3j.build(new HttpService("<node endpoint>"));
+Azure key vault with an Azure Service Principal or Managed Identity with get and sign permissions to the respective key vault.
 
-Azure service principal or managed service identity with sign permissions to the vault.
-
-When using Azure managed service identity - AzureCryptoClient will authenticate silently
+When using Azure Managed Identity - AzureCryptoClient will leverage the DefaultAzureCredential
 
 Alternately set the following environment variables
 
-AZURE_CLIENT_ID = (appId)
+AZURE_CLIENT_ID = (appId),
 AZURE_CLIENT_SECRET = (password),
 AZURE_TENANT_ID = (tenant)
 
-KeyClient kvc = new AzureCryptoClient("https://mykeyvault.vault.azure.net/keys/<keyname>/<keyversion>");
+For development can leverage the Azure cli to generate credentials
+
+## Usage
+
+Web3j web3j = Web3j.build(new HttpService("http://localhost:8545"));
+
+KeyVaultClient kvc = new AzureCryptoClient("https://mykeyvault.vault.azure.net/keys/keyname/keyversion");
 
 KeyVaultTransactionManager transactionManager = new KeyVaultTransactionManager(web3j, kvc, chainId);
 
