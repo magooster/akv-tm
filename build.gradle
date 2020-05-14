@@ -67,6 +67,7 @@ ext {
     akvVersion = '4.1.1'
     web3jVersion = '4.5.17'
     junitVersion = '5.5.2'
+    mockitoJunitVersion = '3.1.0'
 }
 
 dependencies {
@@ -77,6 +78,8 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-engine:$junitVersion",
             "org.junit.jupiter:junit-jupiter-api:$junitVersion",
             "org.junit.jupiter:junit-jupiter-params:$junitVersion"
+    testCompile "org.mockito:mockito-junit-jupiter:$mockitoJunitVersion"
+
 }
 
 test {
@@ -97,7 +100,7 @@ publishing {
             artifact testsJar
 
             pom {
-                name = 'Azure KeyVault TransactionManager'
+                name = 'KeyVault TransactionManager'
                 description.set(project.provider({ project.description }))
                 url = "https://github.com/magooster/${ project.name }"
 
