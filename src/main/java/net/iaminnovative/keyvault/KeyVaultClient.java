@@ -12,6 +12,8 @@
  */
 package net.iaminnovative.keyvault;
 
+import net.iaminnovative.KeyVaultException;
+
 /** The interface for the KeyVaultClient class */
 public interface KeyVaultClient {
 
@@ -35,5 +37,5 @@ public interface KeyVaultClient {
      * @param msgHash - The content from which signature is to be created.
      * @return The signature.
      */
-    byte[] sign(byte[] msgHash);
+    byte[] sign(byte[] msgHash) throws KeyVaultException;
 }
