@@ -33,7 +33,7 @@ import org.web3j.protocol.core.methods.response.EthSendTransaction;
 import org.web3j.rlp.RlpEncoder;
 import org.web3j.rlp.RlpList;
 import org.web3j.rlp.RlpType;
-import org.web3j.tx.ChainId;
+import org.web3j.tx.ChainIdLong;
 import org.web3j.tx.TransactionManager;
 import org.web3j.tx.exceptions.ContractCallException;
 import org.web3j.tx.exceptions.TxHashMismatchException;
@@ -95,17 +95,17 @@ public class KeyVaultTransactionManager extends TransactionManager {
     }
 
     public KeyVaultTransactionManager(Web3j web3j, KeyVaultClient client) {
-        this(web3j, client, ChainId.NONE);
+        this(web3j, client, ChainIdLong.NONE);
     }
 
     public KeyVaultTransactionManager(
             Web3j web3j, KeyVaultClient client, int attempts, int sleepDuration) {
-        this(web3j, client, ChainId.NONE, attempts, sleepDuration);
+        this(web3j, client, ChainIdLong.NONE, attempts, sleepDuration);
     }
 
     protected BigInteger getNonce() throws IOException {
         EthGetTransactionCount ethGetTransactionCount =
-                web3j.ethGetTransactionCount(client.getAddress(), DefaultBlockParameterName.PENDING)
+                web3j.ethGetTransactionCount(getFromAddress(), DefaultBlockParameterName.PENDING)
                         .send();
 
         return ethGetTransactionCount.getTransactionCount();
@@ -167,7 +167,12 @@ public class KeyVaultTransactionManager extends TransactionManager {
     public String sign(RawTransaction rawTransaction) {
 
         // Encode and hash the transaction
-        byte[] bytesToSign = TransactionEncoder.encode(rawTransaction, chainId);
+        byte[] bytesToSign;
+        if (chainId == ChainIdLong.NONE) {
+            bytesToSign = TransactionEncoder.encode(rawTransaction);
+        } else {
+            bytesToSign = TransactionEncoder.encode(rawTransaction, chainId);
+        }
         byte[] hash = Hash.sha3(bytesToSign);
 
         // Sign using key Vault client
@@ -196,14 +201,15 @@ public class KeyVaultTransactionManager extends TransactionManager {
         byte[] r = Numeric.toBytesPadded(canonicalSignature.r, 32);
         byte[] s = Numeric.toBytesPadded(canonicalSignature.s, 32);
 
-        final Sign.SignatureData canonicalSig = new Sign.SignatureData(v, r, s);
+        Sign.SignatureData canonicalSig = new Sign.SignatureData(v, r, s);
 
-        // EIP-555 Prevent replay attacks
-        final Sign.SignatureData eip155Signature =
-                TransactionEncoder.createEip155SignatureData(canonicalSig, chainId);
+        if (chainId != ChainIdLong.NONE) {
+            // EIP-555 Prevent replay attacks
+            canonicalSig = TransactionEncoder.createEip155SignatureData(canonicalSig, chainId);
+        }
 
         // Finally RLP encode the signed transaction
-        List<RlpType> values = TransactionEncoder.asRlpValues(rawTransaction, eip155Signature);
+        List<RlpType> values = TransactionEncoder.asRlpValues(rawTransaction, canonicalSig);
         RlpList rlpList = new RlpList(values);
         final byte[] serialisedBytes = RlpEncoder.encode(rlpList);
 
