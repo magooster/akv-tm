@@ -78,8 +78,7 @@ dependencies {
     testImplementation "org.junit.jupiter:junit-jupiter-engine:$junitVersion",
             "org.junit.jupiter:junit-jupiter-api:$junitVersion",
             "org.junit.jupiter:junit-jupiter-params:$junitVersion"
-    testCompile "org.mockito:mockito-junit-jupiter:$mockitoJunitVersion"
-
+    testImplementation "org.mockito:mockito-junit-jupiter:$mockitoJunitVersion"
 }
 
 test {
