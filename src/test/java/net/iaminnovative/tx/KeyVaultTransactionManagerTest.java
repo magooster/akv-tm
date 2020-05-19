@@ -20,8 +20,6 @@ import org.web3j.crypto.Hash;
 import org.web3j.crypto.RawTransaction;
 import org.web3j.crypto.TransactionEncoder;
 import org.web3j.protocol.Web3j;
-import org.web3j.protocol.Web3jService;
-import org.web3j.protocol.core.DefaultBlockParameter;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.Request;
 import org.web3j.protocol.core.methods.response.*;
@@ -37,11 +35,8 @@ import static org.mockito.Mockito.when;
 
 public class KeyVaultTransactionManagerTest {
 
-    Web3jService service = mock(Web3jService.class);
     AzureCryptoClient azureCryptoClient = mock(AzureCryptoClient.class);
     Web3j web3j = mock(Web3j.class);
-    DefaultBlockParameter defaultBlockParameter = mock(DefaultBlockParameter.class);
-    EthCall response = mock(EthCall.class);
 
     private static final String PUBLIC_KEY =
             "0xb0cbafae9af1fcddd9476768dc1ae5f7ee56b515602afde47a7cdd4870a92475d48674de0a55fee9113360ff8ffab5f7eab7ea388c622e83e0aaaaa1459ff1e2";
