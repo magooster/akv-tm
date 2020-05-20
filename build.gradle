@@ -2,7 +2,9 @@ plugins {
     id 'java'
     id 'idea'
     id "com.diffplug.gradle.spotless" version "3.25.0"
-    id 'maven-publish'
+    id 'io.codearte.nexus-staging' version '0.21.1'
+    id "de.marcphilipp.nexus-publish" version "0.4.0"
+    id 'signing'
 }
 
 group 'net.iaminnovative'
@@ -99,7 +101,7 @@ publishing {
             artifact testsJar
 
             pom {
-                name = 'KeyVault TransactionManager'
+                name = 'KeyVault Transaction Manager'
                 description.set(project.provider({ project.description }))
                 url = "https://github.com/magooster/${ project.name }"
 
@@ -126,4 +128,22 @@ publishing {
             }
         }
     }
+}
+
+nexusPublishing {
+    repositories {
+        sonatype {
+            username = System.getenv('OSSRH_USERNAME')
+            password = System.getenv('OSSRH_PASSWORD')
+        }
+    }
+}
+
+
+nexusStaging {
+    packageGroup = "net.iaminnovative"
+}
+
+signing {
+    sign publishing.publications.maven
 }
