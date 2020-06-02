@@ -26,6 +26,8 @@ import com.azure.security.keyvault.keys.cryptography.models.SignatureAlgorithm;
 import com.azure.security.keyvault.keys.models.JsonWebKey;
 import com.azure.security.keyvault.keys.models.KeyVaultKey;
 import com.google.common.primitives.Bytes;
+import net.iaminnovative.Utils;
+import org.web3j.crypto.ECDSASignature;
 import org.web3j.crypto.Keys;
 
 import net.iaminnovative.KeyVaultException;
@@ -46,10 +48,14 @@ public class AzureCryptoClient implements KeyVaultClient {
 
     public static final String INVALID_VAULT_ERROR_MSG = "Specified key vault (%s) does not exist.";
 
+    public static final String INVALID_SIGNATURE_LENGTH = "";
+
     private final CryptographyClient cryptoClient;
-    private byte[] publicKey = null;
+    private final BigInteger publicKey;
 
     private static final String KEY_IDENTIFIER_PATTERN = "https://%s.vault.azure.net/keys/%s/%s";
+
+    private static final int PUBLIC_COORDINATE_SIZE = 32;
 
     /**
      * Instantiates a new key vault using the Azure cryptography client
@@ -58,7 +64,8 @@ public class AzureCryptoClient implements KeyVaultClient {
      * @param credential The token credential to use when authorizing requests
      * @throws KeyVaultException When the key vault operation throws an error
      */
-    public AzureCryptoClient(String keyId, TokenCredential credential) throws KeyVaultException {
+    public AzureCryptoClient(String keyId, TokenCredential credential)
+            throws KeyVaultException {
 
         try {
             this.cryptoClient =
@@ -69,8 +76,7 @@ public class AzureCryptoClient implements KeyVaultClient {
 
             /* Cache public key to avoid additional lookup */
             KeyVaultKey key = cryptoClient.getKey();
-            JsonWebKey jwk = key.getKey();
-            publicKey = Bytes.concat(jwk.getX(), jwk.getY());
+            publicKey = getPublicKey(key.getKey());
         } catch (final HttpResponseException ex) {
             if (ex.getResponse().getStatusCode() == 400) {
                 throw new KeyVaultException(BAD_PARAMETER_ERROR, ex);
@@ -143,7 +149,7 @@ public class AzureCryptoClient implements KeyVaultClient {
      *
      * @return The public key.
      */
-    public byte[] getPublicKey() {
+    public BigInteger getPublicKey() {
         return publicKey;
     }
 
@@ -153,8 +159,7 @@ public class AzureCryptoClient implements KeyVaultClient {
      * @return The Ethereum address as a HEX encoded string.
      */
     public String getAddress() {
-        BigInteger publicKey = new BigInteger(1, this.publicKey);
-        return "0x" + Keys.getAddress(publicKey);
+        return "0x" + Keys.getAddress(getPublicKey());
     }
 
     /**
@@ -164,10 +169,14 @@ public class AzureCryptoClient implements KeyVaultClient {
      * @return The signature.
      * @throws KeyVaultException - when a key vault error occurs.
      */
-    public byte[] sign(byte[] txDigest) throws KeyVaultException {
+    public ECDSASignature sign(byte[] txDigest) throws KeyVaultException {
         try {
+            System.out.println("sign with key");
             SignResult result = cryptoClient.sign(SignatureAlgorithm.ES256K, txDigest);
-            return result.getSignature();
+            if (result.getSignature().length > 64) {
+                throw new KeyVaultException(INVALID_SIGNATURE_LENGTH);
+            }
+            return Utils.toCanonicalSignature(result.getSignature());
         } catch (HttpResponseException ex) {
             if (ex.getResponse().getStatusCode() == 404) {
                 throw new KeyVaultException(INVALID_KEY_ERROR, ex);
@@ -178,4 +187,31 @@ public class AzureCryptoClient implements KeyVaultClient {
             throw new KeyVaultException(ex);
         }
     }
+
+    private static BigInteger getPublicKey(JsonWebKey key) {
+        return Utils.getPublicKey(toBytesPadded(key.getX()), toBytesPadded(key.getY()));
+    }
+
+    public static byte[] toBytesPadded(byte[] value) {
+        byte[] result = new byte[PUBLIC_COORDINATE_SIZE];
+
+        int bytesLength;
+        int srcOffset;
+        if (value[0] == 0) {
+            bytesLength = value.length - 1;
+            srcOffset = 1;
+        } else {
+            bytesLength = value.length;
+            srcOffset = 0;
+        }
+
+        if (bytesLength > PUBLIC_COORDINATE_SIZE) {
+            throw new RuntimeException("Input is too large to put in byte array of size " + PUBLIC_COORDINATE_SIZE);
+        }
+
+        int destOffset = PUBLIC_COORDINATE_SIZE - bytesLength;
+        System.arraycopy(value, srcOffset, result, destOffset, bytesLength);
+        return result;
+    }
+
 }

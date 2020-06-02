@@ -15,7 +15,9 @@ package net.iaminnovative.tx;
 import java.io.IOException;
 import java.math.BigInteger;
 
+import net.iaminnovative.Utils;
 import org.junit.jupiter.api.Test;
+import org.web3j.crypto.ECDSASignature;
 import org.web3j.crypto.Hash;
 import org.web3j.crypto.RawTransaction;
 import org.web3j.crypto.TransactionEncoder;
@@ -56,6 +58,9 @@ public class KeyVaultTransactionManagerTest {
                     "0xf0116acf925a7439efe80b3341aa0b2b1806dafd",
                     BigInteger.ZERO,
                     TX_DATA);
+
+    ECDSASignature signature = Utils.toCanonicalSignature(Numeric.hexStringToByteArray(SIGNATURE));
+    BigInteger publicKey = Numeric.toBigInt(PUBLIC_KEY);
 
     @Test
     public void testGetFromAddress() {
@@ -105,12 +110,12 @@ public class KeyVaultTransactionManagerTest {
     @Test
     void testSign() {
 
-        when(azureCryptoClient.getPublicKey()).thenReturn(Numeric.hexStringToByteArray(PUBLIC_KEY));
+        when(azureCryptoClient.getPublicKey()).thenReturn(publicKey);
 
         byte[] bytesToSign = TransactionEncoder.encode(rawTransaction);
         byte[] hash = Hash.sha3(bytesToSign);
 
-        when(azureCryptoClient.sign(hash)).thenReturn(Numeric.hexStringToByteArray(SIGNATURE));
+        when(azureCryptoClient.sign(hash)).thenReturn(signature);
 
         KeyVaultTransactionManager keyVaultTransactionManager =
                 new KeyVaultTransactionManager(web3j, azureCryptoClient);
@@ -129,11 +134,11 @@ public class KeyVaultTransactionManagerTest {
         when(web3j.ethSendRawTransaction(SIGNED_TX))
                 .thenReturn((Request) sendRawTransactionRequest);
 
-        when(azureCryptoClient.getPublicKey()).thenReturn(Numeric.hexStringToByteArray(PUBLIC_KEY));
+        when(azureCryptoClient.getPublicKey()).thenReturn(publicKey);
         byte[] bytesToSign = TransactionEncoder.encode(rawTransaction);
         byte[] hash = Hash.sha3(bytesToSign);
 
-        when(azureCryptoClient.sign(hash)).thenReturn(Numeric.hexStringToByteArray(SIGNATURE));
+        when(azureCryptoClient.sign(hash)).thenReturn(signature);
 
         KeyVaultTransactionManager keyVaultTransactionManager =
                 new KeyVaultTransactionManager(web3j, azureCryptoClient);
@@ -162,11 +167,11 @@ public class KeyVaultTransactionManagerTest {
         when(web3j.ethSendRawTransaction(SIGNED_TX))
                 .thenReturn((Request) sendRawTransactionRequest);
 
-        when(azureCryptoClient.getPublicKey()).thenReturn(Numeric.hexStringToByteArray(PUBLIC_KEY));
+        when(azureCryptoClient.getPublicKey()).thenReturn(publicKey);
         byte[] bytesToSign = TransactionEncoder.encode(rawTransaction);
         byte[] hash = Hash.sha3(bytesToSign);
 
-        when(azureCryptoClient.sign(hash)).thenReturn(Numeric.hexStringToByteArray(SIGNATURE));
+        when(azureCryptoClient.sign(hash)).thenReturn(signature);
 
         KeyVaultTransactionManager keyVaultTransactionManager =
                 new KeyVaultTransactionManager(web3j, azureCryptoClient);

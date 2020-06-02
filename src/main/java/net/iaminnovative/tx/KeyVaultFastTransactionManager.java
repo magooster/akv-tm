@@ -21,6 +21,9 @@ import org.web3j.tx.response.TransactionReceiptProcessor;
 
 import net.iaminnovative.keyvault.KeyVaultClient;
 
+/**
+ * Inspired by https://github.com/web3j/web3j/blob/master/core/src/main/java/org/web3j/tx/FastRawTransactionManager.java
+ */
 public class KeyVaultFastTransactionManager extends KeyVaultTransactionManager {
 
     private volatile BigInteger nonce = BigInteger.valueOf(-1);

@@ -1,4 +1,4 @@
-## akv-tm: Azure KeyVault Transaction manager for use with Web3j
+## kv-tm: KeyVault Transaction manager for use with Web3j
 
 ## Features
 

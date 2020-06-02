@@ -13,6 +13,9 @@
 package net.iaminnovative.keyvault;
 
 import net.iaminnovative.KeyVaultException;
+import org.web3j.crypto.ECDSASignature;
+
+import java.math.BigInteger;
 
 /** The interface for the KeyVaultClient class */
 public interface KeyVaultClient {
@@ -22,7 +25,7 @@ public interface KeyVaultClient {
      *
      * @return The public key.
      */
-    byte[] getPublicKey();
+    BigInteger getPublicKey();
 
     /**
      * Get the Ethereum address for the private key managed by the key client
@@ -37,5 +40,5 @@ public interface KeyVaultClient {
      * @param msgHash - The content from which signature is to be created.
      * @return The signature.
      */
-    byte[] sign(byte[] msgHash) throws KeyVaultException;
+    ECDSASignature sign(byte[] msgHash) throws KeyVaultException;
 }

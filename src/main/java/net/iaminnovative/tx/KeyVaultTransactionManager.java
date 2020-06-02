@@ -49,6 +49,9 @@ import net.iaminnovative.keyvault.KeyVaultClient;
  * <p>This transaction manager provides support for specifying the chain id for transactions as per
  * <a href="https://github.com/ethereum/EIPs/issues/155">EIP155</a>, as well as for locally signing
  * RawTransaction instances without broadcasting them.
+ *
+ * Inspired by https://github.com/web3j/web3j/blob/master/core/src/main/java/org/web3j/tx/RawTransactionManager.java
+ * https://github.com/PegaSysEng/ethsigner/blob/master/ethsigner/signer/azure/src/main/java/tech/pegasys/ethsigner/signer/azure/AzureKeyVaultTransactionSigner.java
  */
 public class KeyVaultTransactionManager extends TransactionManager {
 
@@ -67,7 +70,6 @@ public class KeyVaultTransactionManager extends TransactionManager {
 
         this.web3j = web3j;
         this.client = client;
-
         this.chainId = chainId;
     }
 
@@ -80,7 +82,6 @@ public class KeyVaultTransactionManager extends TransactionManager {
 
         this.web3j = web3j;
         this.client = client;
-
         this.chainId = chainId;
     }
 
@@ -176,30 +177,17 @@ public class KeyVaultTransactionManager extends TransactionManager {
         byte[] hash = Hash.sha3(bytesToSign);
 
         // Sign using key Vault client
-        byte[] signature = client.sign(hash);
-
-        if (signature.length != 64) {
-            throw new RuntimeException(
-                    "Invalid signature from the keyvault signing service, must be 64 bytes long");
-        }
-
-        // Grab the signature R and S values
-        final BigInteger R = new BigInteger(1, Arrays.copyOfRange(signature, 0, 32));
-        final BigInteger S = new BigInteger(1, Arrays.copyOfRange(signature, 32, 64));
-
-        // Canonicalise the signature - Ethereum constraint to ensure only one signature valid
-        final ECDSASignature initialSignature = new ECDSASignature(R, S);
-        final ECDSASignature canonicalSignature = initialSignature.toCanonicalised();
+        ECDSASignature signature = client.sign(hash);
 
         // Work backwards to figure out the recovery id needed to recover the signature.
         // Used to derive msg.sender (address) in Ethereum clients
-        final int recId = getRecoveryId(canonicalSignature, hash);
+        final int recId = getRecoveryId(signature, hash);
         if (recId == -1) {
             throw new RuntimeException("Error generating recovery id from signature");
         }
         byte[] v = new byte[] {(byte) recId};
-        byte[] r = Numeric.toBytesPadded(canonicalSignature.r, 32);
-        byte[] s = Numeric.toBytesPadded(canonicalSignature.s, 32);
+        byte[] r = Numeric.toBytesPadded(signature.r, 32);
+        byte[] s = Numeric.toBytesPadded(signature.s, 32);
 
         Sign.SignatureData canonicalSig = new Sign.SignatureData(v, r, s);
 
@@ -232,7 +220,7 @@ public class KeyVaultTransactionManager extends TransactionManager {
     }
 
     private int getRecoveryId(ECDSASignature sig, byte[] hash) {
-        BigInteger publicKey = new BigInteger(1, client.getPublicKey());
+        BigInteger publicKey = client.getPublicKey();
         for (int i = 0; i < 2; i++) {
             final BigInteger k = Sign.recoverFromSignature(i, sig, hash);
             if (k != null && k.equals(publicKey)) {
