@@ -51,6 +51,6 @@ public class KeyVaultFastTransactionManagerTest {
         assertEquals(BigInteger.ONE, firstNonce);
 
         BigInteger secondNonce = transactionManager.getNonce();
-        assertEquals(BigInteger.TWO, secondNonce);
+        assertEquals(BigInteger.valueOf(2L), secondNonce);
     }
 }

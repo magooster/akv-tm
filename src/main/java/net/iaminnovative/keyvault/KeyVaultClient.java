@@ -12,10 +12,11 @@
  */
 package net.iaminnovative.keyvault;
 
-import net.iaminnovative.KeyVaultException;
+import java.math.BigInteger;
+
 import org.web3j.crypto.ECDSASignature;
 
-import java.math.BigInteger;
+import net.iaminnovative.KeyVaultException;
 
 /** The interface for the KeyVaultClient class */
 public interface KeyVaultClient {

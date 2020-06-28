@@ -16,13 +16,14 @@ import java.io.IOException;
 import java.math.BigInteger;
 
 import org.web3j.protocol.Web3j;
-import org.web3j.tx.ChainId;
+import org.web3j.tx.ChainIdLong;
 import org.web3j.tx.response.TransactionReceiptProcessor;
 
 import net.iaminnovative.keyvault.KeyVaultClient;
 
 /**
- * Inspired by https://github.com/web3j/web3j/blob/master/core/src/main/java/org/web3j/tx/FastRawTransactionManager.java
+ * Inspired by
+ * https://github.com/web3j/web3j/blob/master/core/src/main/java/org/web3j/tx/FastRawTransactionManager.java
  */
 public class KeyVaultFastTransactionManager extends KeyVaultTransactionManager {
 
@@ -40,7 +41,7 @@ public class KeyVaultFastTransactionManager extends KeyVaultTransactionManager {
             Web3j web3j,
             KeyVaultClient client,
             TransactionReceiptProcessor transactionReceiptProcessor) {
-        super(web3j, client, ChainId.NONE, transactionReceiptProcessor);
+        super(web3j, client, ChainIdLong.NONE, transactionReceiptProcessor);
     }
 
     public KeyVaultFastTransactionManager(

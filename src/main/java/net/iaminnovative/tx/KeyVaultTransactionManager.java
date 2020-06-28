@@ -14,7 +14,6 @@ package net.iaminnovative.tx;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.util.Arrays;
 import java.util.List;
 
 import org.web3j.crypto.ECDSASignature;
@@ -50,7 +49,8 @@ import net.iaminnovative.keyvault.KeyVaultClient;
  * <a href="https://github.com/ethereum/EIPs/issues/155">EIP155</a>, as well as for locally signing
  * RawTransaction instances without broadcasting them.
  *
- * Inspired by https://github.com/web3j/web3j/blob/master/core/src/main/java/org/web3j/tx/RawTransactionManager.java
+ * <p>Inspired by
+ * https://github.com/web3j/web3j/blob/master/core/src/main/java/org/web3j/tx/RawTransactionManager.java
  * https://github.com/PegaSysEng/ethsigner/blob/master/ethsigner/signer/azure/src/main/java/tech/pegasys/ethsigner/signer/azure/AzureKeyVaultTransactionSigner.java
  */
 public class KeyVaultTransactionManager extends TransactionManager {

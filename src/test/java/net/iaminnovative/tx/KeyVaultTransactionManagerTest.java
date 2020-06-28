@@ -15,7 +15,6 @@ package net.iaminnovative.tx;
 import java.io.IOException;
 import java.math.BigInteger;
 
-import net.iaminnovative.Utils;
 import org.junit.jupiter.api.Test;
 import org.web3j.crypto.ECDSASignature;
 import org.web3j.crypto.Hash;
@@ -28,6 +27,7 @@ import org.web3j.protocol.core.methods.response.*;
 import org.web3j.tx.gas.DefaultGasProvider;
 import org.web3j.utils.Numeric;
 
+import net.iaminnovative.Utils;
 import net.iaminnovative.keyvault.AzureCryptoClient;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
