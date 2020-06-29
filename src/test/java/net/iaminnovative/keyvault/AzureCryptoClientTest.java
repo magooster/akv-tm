@@ -25,7 +25,6 @@ import com.azure.identity.ClientSecretCredentialBuilder;
 import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.azure.security.keyvault.keys.KeyClient;
 import com.azure.security.keyvault.keys.KeyClientBuilder;
-import com.azure.security.keyvault.keys.cryptography.CryptographyClient;
 import com.azure.security.keyvault.keys.models.DeletedKey;
 import com.azure.security.keyvault.keys.models.JsonWebKey;
 import com.azure.security.keyvault.keys.models.KeyVaultKey;
@@ -47,13 +46,9 @@ import net.iaminnovative.KeyVaultException;
 
 import static net.iaminnovative.keyvault.AzureCryptoClient.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 
 @ExtendWith(KeyVaultConfigured.class)
 public class AzureCryptoClientTest {
-
-    CryptographyClient cryptoClient = mock(CryptographyClient.class);
-    private static final String FROM_ADDRESS = "3e55d41a06436461fc8ec5cda7ef088815660359";
 
     private static final Map<String, String> keys;
 
@@ -74,7 +69,7 @@ public class AzureCryptoClientTest {
             "https://" + System.getenv("AZURE_KEY_VAULT_NAME") + ".vault.azure.net/";
 
     @BeforeAll
-    static void setupVault() throws NoSuchProviderException, NoSuchAlgorithmException {
+    static void setupVault() {
 
         Security.addProvider(new BouncyCastleProvider());
 
