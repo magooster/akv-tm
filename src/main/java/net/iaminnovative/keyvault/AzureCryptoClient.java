@@ -40,9 +40,6 @@ public class AzureCryptoClient implements KeyVaultClient {
 
     public static final String UNAUTHORIZED_ERROR = "Key vault operation is forbidden by policy.";
 
-    public static final String BAD_PARAMETER_ERROR =
-            "Key vault does not contain key with specified version.";
-
     public static final String INVALID_KEY_ERROR = "Key vault does not contain specified key";
 
     public static final String INVALID_VAULT_ERROR_MSG = "Specified key vault does not exist.";
@@ -58,7 +55,7 @@ public class AzureCryptoClient implements KeyVaultClient {
      * @param cryptoClient An
      * @throws KeyVaultException When the key vault operation throws an error
      */
-    public AzureCryptoClient(CryptographyClient cryptoClient) throws KeyVaultException {
+    public AzureCryptoClient(final CryptographyClient cryptoClient)  throws KeyVaultException {
 
         try {
             this.cryptoClient = cryptoClient;
@@ -110,7 +107,7 @@ public class AzureCryptoClient implements KeyVaultClient {
      * @param credential Azure token credential
      * @throws KeyVaultException
      */
-    public AzureCryptoClient(String keyId, TokenCredential credential) throws KeyVaultException {
+    public AzureCryptoClient(final String keyId, final TokenCredential credential) throws KeyVaultException {
         this(
                 new CryptographyClientBuilder()
                         .credential(credential)
@@ -125,7 +122,7 @@ public class AzureCryptoClient implements KeyVaultClient {
      * @param keyId The key identifier
      * @throws KeyVaultException When the key vault operation throws an error
      */
-    public AzureCryptoClient(String keyId) throws KeyVaultException {
+    public AzureCryptoClient(final String keyId) throws KeyVaultException {
         this(keyId, new DefaultAzureCredentialBuilder().build());
     }
 
@@ -154,7 +151,7 @@ public class AzureCryptoClient implements KeyVaultClient {
      * @return The signature.
      * @throws KeyVaultException - when a key vault error occurs.
      */
-    public ECDSASignature sign(byte[] txDigest) throws KeyVaultException {
+    public ECDSASignature sign(final byte[] txDigest) throws KeyVaultException {
         try {
             SignResult result = cryptoClient.sign(SignatureAlgorithm.ES256K, txDigest);
             if (result.getSignature().length > 64) {
@@ -172,7 +169,7 @@ public class AzureCryptoClient implements KeyVaultClient {
         }
     }
 
-    private static BigInteger getPublicKey(JsonWebKey key) {
+    private static BigInteger getPublicKey(final JsonWebKey key) {
         return Utils.getPublicKey(key.getX(), key.getY());
     }
 }
